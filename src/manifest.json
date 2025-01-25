@@ -1,0 +1,48 @@
+{
+  "manifest_version": 2,
+  "name": "App Track Firefox Extension",
+  "version": "1.0",
+  "description": "Does the thing",
+  "icons": {
+    "48": "icons/AppTrackLogo_48.png",
+    "96": "icons/AppTrackLogo_96.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "main.js"
+      ]
+    }
+  ],
+  "background": {
+    "scripts": [
+      "background.js"
+    ],
+    "persistent": false,
+    "type": "module"
+  },
+  "browser_action": {
+    "default_icon": "icons/AppTrackLogo_32.png",
+    "default_title": "AppTrack",
+    "default_popup": "html/popup.html"
+  },
+  "web_accessible_resources": [
+    "model/model.json",
+    "model/group1-shard1of1.bin",
+    "model/word_list.json"
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "appTrack@getAppTrack.com"
+    }
+  },
+  "permissions": [
+    "storage",
+    "activeTab",
+    "tabs",
+    "nativeMessaging"
+  ]
+}
