@@ -1,4 +1,5 @@
 import { addMetadataToHyperlinks } from './service/hyperlink_mutation_service.js'
+import StaticQueueableFunction from './utils/static-queueable-function.js'
 
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     console.log('message received, type = ', message.type)
@@ -82,3 +83,14 @@ async function processDocument() {
             })
     })
 }
+
+const path = window.location.hostname + window.location.pathname
+
+browser.runtime.sendMessage({ type: 'isKnownUrl', payload: path}).then((isKnownUrl) => {
+    if(isKnownUrl) {
+        const queue = new StaticQueueableFunction(processDocument, 100)
+        const observer = new MutationObserver(() => queue.queueRun())
+        observer.observe(document, { childList: true, subtree: true })
+        queue.queueRun()
+    }
+})

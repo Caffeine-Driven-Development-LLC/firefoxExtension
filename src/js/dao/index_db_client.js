@@ -2,7 +2,7 @@ let db
 
 export function openDatabase() {
     return new Promise((resolve, reject) => {
-        const request = indexedDB.open('JobHrefs', 3)
+        const request = indexedDB.open('JobHrefs', 4)
 
         request.onerror = function (event) {
             console.log('Error opening database')
@@ -24,9 +24,9 @@ export function openDatabase() {
                 console.log('Database setup complete')
             }
 
-            if (!db.objectStoreNames.contains('bookmarks')) {
-                db.createObjectStore('bookmarks')
-                console.log('Database setup complete')
+            if (!db.objectStoreNames.contains('knownUrls')) {
+                db.createObjectStore('knownUrls')
+                console.log('knownUrls setup complete')
             }
         }
     })
@@ -99,6 +99,65 @@ export function selectAllBookmarks() {
         const store = transaction.objectStore('bookmarks')
         const request = store.getAll()
         request.onsuccess = function (event) {
+            resolve(event.target.result)
+        }
+
+        request.onerror = function (event) {
+            reject(event)
+        }
+    })
+}
+
+export function saveKnownUrl(url) {
+    return new Promise((resolve) => {
+        const transaction = db.transaction(['knownUrls'], 'readwrite')
+        const store = transaction.objectStore('knownUrls')
+        const payloadToSave = {
+            favorite: false,
+        }
+        console.log('saving known url ', url)
+        store.add(payloadToSave, url)
+        resolve()
+    })
+}
+
+export function deleteKnownUrl(url) {
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['knownUrls'], 'readwrite')
+        const store = transaction.objectStore('knownUrls')
+        console.log('deleting known url ', url)
+        store.delete(url)
+        resolve()
+    })
+}
+
+export function updateKnownUrl(url, payload) {
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['knownUrls'], 'readwrite')
+        const store = transaction.objectStore('knownUrls')
+        store.put(payload, url)
+        resolve()
+    })
+}
+
+export function selectKnownUrl(url) {
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['knownUrls'], 'readwrite')
+        const store = transaction.objectStore('knownUrls')
+        const request = store.get(url)
+        request.onsuccess = function (event) {
+            resolve(event.target.result)
+        }
+    })
+}
+
+export function selectAllKnownUrl() {
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['knownUrls'], 'readwrite')
+        const store = transaction.objectStore('knownUrls')
+        const request = store.getAllKeys()
+        request.onsuccess = function (event) {
+            console.log('known urls', event.target.result)
             resolve(event.target.result)
         }
 
